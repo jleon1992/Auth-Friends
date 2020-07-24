@@ -13,6 +13,8 @@ const initialFriendValues = {
 export const FriendsList = () => {
     const [friends, setFriends] = useState([])
     const [friendValues, setFriendValues] = useState(initialFriendValues)
+    const [editFriend, setEditFriend] = useState(false)
+    const [currentId, setCurrentId] = useState(0)
     useEffect(()=> {
         getFriends()
     },[])
@@ -36,6 +38,18 @@ export const FriendsList = () => {
         })
         .catch(err => console.log(err))
     }
+
+    const putFriend = (newFriend, id) => {
+        axiosWithAuth()
+        .put(`http://localhost:5000/api/friends/${id}`, newFriend)
+        .then(res => {
+            console.log(res)
+            getFriends()
+            setEditFriend(false)
+        })
+    }
+
+    
     const addFriend = e => {
         e.preventDefault()
         const newFriend = {
@@ -44,8 +58,12 @@ export const FriendsList = () => {
             age: friendValues.age,
             email: friendValues.email
         }
+        if(editFriend){
+            putFriend(newFriend, currentId)
+        }else{
+            postFriend(newFriend)
+        }
         
-        postFriend(newFriend)
         setFriendValues({
             name: '',
             age: '',
@@ -101,7 +119,7 @@ export const FriendsList = () => {
             </form>
             {friends.map(friend => {
                 return(
-                    <Friend key={friend.id} friend={friend} />
+                    <Friend key={friend.id} getFriends={getFriends} friend={friend} friendValues={friendValues} setCurrentId={setCurrentId} setFriendValues={setFriendValues} setEditFriend={setEditFriend} />
                 )
             })}
         </div>
